@@ -367,9 +367,9 @@
     {
         bacaan: `<div style="text-align: center; background: #edf2f7; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
             <p style="margin: 0 0 8px 0; font-weight: bold; color: #2b6cb0;">🔊 Audio Listening Package 1 - Full 1-50:</p>
-      <audio id="fullAudioListening" style="width: 100%;">
-  <source <source src="audioTOEFLETSA1.MP3" type="audio/mpeg">
-    Browser Anda tidak mendukung pemutaran audio.
+    <audio id="fullAudioListening" preload="auto">
+  <source src="audioTOEFLETSA1.MP3" type="audio/mpeg">
+  Browser Anda tidak mendukung pemutaran audio.
 </audio>
 
             <button onclick="playFullAudioOnce(this)" style="margin-top: 10px; padding: 8px 16px; background: #2b6cb0; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
@@ -2994,6 +2994,9 @@ function playFullAudioOnce(buttonElement) {
     // Simpan status ke localStorage browser
     localStorage.setItem('audioSudahDiputar', 'true');
 
+    // Muat file audio lokal
+    audio.load();
+
     // Jalankan audio dengan penanganan Promise untuk mencegah blokir browser
     audio.play().then(() => {
         let lastTime = 0;
@@ -3026,7 +3029,7 @@ function playFullAudioOnce(buttonElement) {
         // Kembalikan tombol jika gagal total
         if(buttonElement) {
             buttonElement.disabled = false;
-            buttonElement.style.background = "#2b6cb0"; // Sesuaikan warna tombol awal Anda
+            buttonElement.style.background = "#2b6cb0"; 
             buttonElement.innerText = "Putar Audio Ujian (Sekali Saja)";
         }
         // Hapus status localStorage jika gagal agar bisa dicoba lagi
@@ -3044,8 +3047,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             btn.innerText = "Audio Sudah Selesai / Telah Diputar";
         }
     }
-});
-// Fungsi untuk menampilkan Riwayat dalam bentuk Tabel persis Google Sheet
+});// Fungsi untuk menampilkan Riwayat dalam bentuk Tabel persis Google Sheet
 function tampilkanModalRiwayat() {
     // Ganti "admin123" dengan password rahasia pilihanmu sendiri
     let passwordAdmin = "etsa1234"; 
