@@ -2509,28 +2509,63 @@ function prosesLogin() {
             a.innerText = c.style.display === 'block' ? '▲' : '▼';
         }
 
-        function mulaiUjian(testKey) {
-            let token = prompt("Masukkan Token Akses:");
-            if (token !== tokenUjian[testKey]) { alert("Token Salah!"); return; }
+       function mulaiUjian(testKey) {
+    let token = prompt("Masukkan Token Akses:");
+    if (token !== tokenUjian[testKey]) { alert("Token Salah!"); return; }
 
-            activeTestKey = testKey;
-            activeSoalList = databaseBankSoal[testKey];
-            currentSoalIndex = 0;
-            jawabanUser = {};
+    activeTestKey = testKey;
+    activeSoalList = databaseBankSoal[testKey];
+    currentSoalIndex = 0;
+    jawabanUser = {};
 
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('dashboard-section').style.display = 'none';
-            document.getElementById('exam-section').style.display = 'grid';
+            let namaLengkap = window.namaLengkap || "Tidak Diketahui";
+    let nomorPeserta = window.nomorPeserta || "-";
+    let nomorWhatsApp = window.nomorWhatsApp || "-";
+    let tujuanTes = window.tujuanTes || "-";
+    let alamatEmail = window.alamatEmail || "-";
 
-            buatGridNavigator();
-            muatSoalKeLayar();
+    // GANTI URL DI BAWAH INI DENGAN LINK DEPLOY APPS SCRIPT LU
+   let urlDatabaseAdmin = 'https://script.google.com/macros/s/AKfycbxuJr5SasjBNA-GvJmNWghhwE7ehNC91wnBgx7TD7s4xLjU9X98qwQ3nW4zMnjX1CR/exec';
+
+    if(urlDatabaseAdmin !== 'URL_API_APPS_SCRIPT_LU_DISINI') {
+        fetch(urlDatabaseAdmin, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'mulai_ujian',
+                namaLengkap: namaLengkap,
+                nomorPeserta: nomorPeserta,
+                nomorWhatsApp: nomorWhatsApp,
+                tujuanTes: tujuanTes,
+                alamatEmail: alamatEmail,
+                jenisUjian: "CBT TOEFL",
+                paketUjian: testKey, 
+                nilai: "-", 
+                status: "Sedang Mengerjakan"
+            })
+        })
+        .then(response => console.log("Status mulai dikirim!"))
+        .catch(error => console.error("Error ngirim data:", error));
+    }
+    // ==============================================================
+    // AKHIR DARI BAGIAN YANG DITAMBAHKAN
+    // ==============================================================
+
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('dashboard-section').style.display = 'none';
+    document.getElementById('exam-section').style.display = 'grid';
+
+    buatGridNavigator();
+    muatSoalKeLayar();
 
             // Waktu otomatis: 55 menit reading, 35 menit listening, sisanya structure (25 menit)
     let durasiWaktu = 25 * 60; // default structure
     if (testKey.startsWith('reading')) {
         durasiWaktu = 55 * 60;
     } else if (testKey.startsWith('listening')) {
-        durasiWaktu = 35 * 60;
+        durasiWaktu = 37 * 60;
     }
     mulaiTimer(durasiWaktu);
         }
@@ -2852,7 +2887,7 @@ function finishExam() {
     // ==========================================================
    let pesertaAktif = JSON.parse(localStorage.getItem("pesertaAktif")) || {};
 
-   let dataHasil = {
+let dataHasil = {
     namaLengkap: pesertaAktif.namaLengkap || "Peserta",
     nomorPeserta: pesertaAktif.nomorPeserta || "-",
     nomorWhatsApp: pesertaAktif.nomorWhatsApp || "-",
@@ -2870,7 +2905,7 @@ riwayatLokal.unshift(dataBaruRiwayat);
 localStorage.setItem('riwayatCBT_ETSA', JSON.stringify(riwayatLokal));
 // -------------------------------------------------------------
 
-fetch("https://script.google.com/macros/s/AKfycbXJd9jWAOumSokrjsu6sJxfmK7CmgpxBRm4W-kqNb9K7dgtc-KHq0-SvEqBp_xDewC/exec", {
+fetch("https://script.google.com/macros/s/AKfycbxuJr5SasjBNA-GvJmNWghhwE7ehNC91wnBgx7TD7s4xLjU9X9X8qwQ3nW4zMnjX1CR/exec", {
     method: "POST",
     mode: "no-cors",
     headers: { "Content-Type": "application/json" },
@@ -3114,6 +3149,79 @@ function tampilkanModalRiwayat() {
     
     document.body.insertAdjacentHTML('beforeend', kotakPopup);
 }
+
+function kirimKeDatabase(jenisUjian, paketUjian, nilaiAkhir) {
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxuJr5SasjBNA-GvJmNWghhwE7ehNC91wnBgx7TD7s4xLjU9X9X8qwQ3nW4zMnjX1CR/exec";
+
+    // Mengambil data dari localStorage saat peserta mengisi form login/registrasi awal
+    const payload = {
+        namaLengkap: localStorage.getItem("namaPeserta") || "Peserta Ujian",
+        nomorPeserta: localStorage.getItem("nomorPeserta") || "-",
+        nomorWhatsApp: localStorage.getItem("nomorWhatsApp") || "-",
+        tujuanTes: localStorage.getItem("tujuanTes") || "-",
+        email: localStorage.getItem("emailPeserta") || "-",
+        jenisUjian: jenisUjian,   // Contoh: "Structure", "Listening", dll.
+        paketUjian: paketUjian,   // Contoh: "Paket 1"
+        nilai: nilaiAkhir,        // Angka nilai peserta
+        status: "Selesai"
+    };
+
+    fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors', // Wajib no-cors agar tidak diblokir browser
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(() => {
+        console.log("Data sukses terkirim ke database admin.");
+    })
+    .catch(error => {
+        console.error("Gagal mengirim data:", error);
+    });
+}
+
+let ujianSudahSelesai = false; // Penanda agar tidak berulang kali trigger
+
+document.addEventListener("visibilitychange", function() {
+    // Jika peserta pindah tab, minimize browser, atau buka window lain (dan ujian belum selesai)
+    if (document.hidden && !ujianSudahSelesai) {
+        alert("⚠️ PERINGATAN KECURANGAN!\nAnda terdeteksi meninggalkan halaman ujian. Sistem akan mengumpulkan lembar jawaban Anda secara otomatis.");
+        
+        ujianSudahSelesai = true;
+        
+        // Panggil fungsi selesai ujian otomatis
+        if (typeof finishExam === 'function') {
+            finishExam();
+        }
+    }
+});
+
+// Panggil fungsi ini saat tombol "Mulai Ujian" diklik peserta
+function kirimStatusMulai() {
+    let pesertaAktif = JSON.parse(localStorage.getItem("pesertaAktif")) || {};
+    let dataMulai = {
+        namaLengkap: pesertaAktif.namaLengkap || "Peserta",
+        nomorPeserta: pesertaAktif.nomorPeserta || "-",
+        nomorWhatsApp: pesertaAktif.nomorWhatsApp || "-",
+        tujuanTes: pesertaAktif.tujuanTes || "-",
+        email: pesertaAktif.email || "-",
+        jenisUjian: "Persiapan", 
+        paketUjian: activeTestKey || "Paket Utama",  
+        nilai: 0,
+        status: "Sedang Mengerjakan"
+    };
+
+    fetch("https://script.google.com/macros/s/AKfycbxuJr5SasjBNA-GvJmNWghhwE7ehNC91wnBgx7TD7s4xLjU9X9X8qwQ3nW4zMnjX1CR/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataMulai)
+    });
+}
+
+
     </script>
 </body>
 </html>
